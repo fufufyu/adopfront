@@ -1,41 +1,43 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
+import { Button } from "@/components/ui/button"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
+import { ChevronRight } from "lucide-react"
 
 const formSchema = z.object({
-  householdExpenses: z.string().min(1, "Pengeluaran rumah tangga wajib diisi"),
-  educationExpenses: z.string().min(1, "Pengeluaran pendidikan wajib diisi"),
-  healthExpenses: z.string().min(1, "Pengeluaran kesehatan wajib diisi"),
-  transportationExpenses: z.string().min(1, "Pengeluaran transportasi wajib diisi"),
-  communicationExpenses: z.string().min(1, "Pengeluaran komunikasi wajib diisi"),
-  entertainmentExpenses: z.string().min(1, "Pengeluaran hiburan wajib diisi"),
-  clothingExpenses: z.string().min(1, "Pengeluaran pakaian wajib diisi"),
-  savingsInvestments: z.string().min(1, "Tabungan/investasi wajib diisi"),
-  otherExpenses: z.string().min(1, "Pengeluaran lainnya wajib diisi"),
-  hasMortgage: z.boolean(),
-  mortgageAmount: z.string().optional(),
-  hasLoan: z.boolean(),
-  loanAmount: z.string().optional(),
+  pengeluaranRumahTangga: z.string().min(1, "Pengeluaran rumah tangga wajib diisi"),
+  pengeluaranPendidikan: z.string().min(1, "Pengeluaran pendidikan wajib diisi"),
+  pengeluaranKesehatan: z.string().min(1, "Pengeluaran kesehatan wajib diisi"),
+  pengeluaranTransportasi: z.string().min(1, "Pengeluaran transportasi wajib diisi"),
+  pengeluaranKomunikasi: z.string().min(1, "Pengeluaran komunikasi wajib diisi"),
+  pengeluaranHiburan: z.string().min(1, "Pengeluaran hiburan wajib diisi"),
+  pengeluaranPakaian: z.string().min(1, "Pengeluaran pakaian wajib diisi"),
+  tabunganInvestasi: z.string().min(1, "Tabungan/investasi wajib diisi"),
+  pengeluaranLainnya: z.string().min(1, "Pengeluaran lainnya wajib diisi"),
+  adaCicilanKPR: z.boolean(),
+  jumlahCicilanKPR: z.string().optional(),
+  adaPinjamanLain: z.boolean(),
+  jumlahCicilanPinjaman: z.string().optional(),
 })
 
 export default function COTAExpensesForm({ onSubmit }: { onSubmit: (data: any) => void; isPreview: boolean }) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      householdExpenses: "",
-      educationExpenses: "",
-      healthExpenses: "",
-      transportationExpenses: "",
-      communicationExpenses: "",
-      entertainmentExpenses: "",
-      clothingExpenses: "",
-      savingsInvestments: "",
-      otherExpenses: "",
-      hasMortgage: false,
-      hasLoan: false,
+      pengeluaranRumahTangga: "",
+      pengeluaranPendidikan: "",
+      pengeluaranKesehatan: "",
+      pengeluaranTransportasi: "",
+      pengeluaranKomunikasi: "",
+      pengeluaranHiburan: "",
+      pengeluaranPakaian: "",
+      tabunganInvestasi: "",
+      pengeluaranLainnya: "",
+      adaCicilanKPR: false,
+      adaPinjamanLain: false,
     },
   })
 
@@ -44,15 +46,15 @@ export default function COTAExpensesForm({ onSubmit }: { onSubmit: (data: any) =
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <div className="grid gap-4 md:grid-cols-2">
           {[
-            "householdExpenses",
-            "educationExpenses",
-            "healthExpenses",
-            "transportationExpenses",
-            "communicationExpenses",
-            "entertainmentExpenses",
-            "clothingExpenses",
-            "savingsInvestments",
-            "otherExpenses",
+            "pengeluaranRumahTangga",
+            "pengeluaranPendidikan",
+            "pengeluaranKesehatan",
+            "pengeluaranTransportasi",
+            "pengeluaranKomunikasi",
+            "pengeluaranHiburan",
+            "pengeluaranPakaian",
+            "tabunganInvestasi",
+            "pengeluaranLainnya",
           ].map((field) => (
             <FormField
               key={field}
@@ -78,7 +80,7 @@ export default function COTAExpensesForm({ onSubmit }: { onSubmit: (data: any) =
 
         <FormField
           control={form.control}
-          name="hasMortgage"
+          name="adaCicilanKPR"
           render={({ field }) => (
             <FormItem className="flex flex-row items-start space-x-3 space-y-0">
               <FormControl>
@@ -91,10 +93,10 @@ export default function COTAExpensesForm({ onSubmit }: { onSubmit: (data: any) =
           )}
         />
 
-        {form.watch("hasMortgage") && (
+        {form.watch("adaCicilanKPR") && (
           <FormField
             control={form.control}
-            name="mortgageAmount"
+            name="jumlahCicilanKPR"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Jumlah Cicilan KPR per Bulan</FormLabel>
@@ -109,7 +111,7 @@ export default function COTAExpensesForm({ onSubmit }: { onSubmit: (data: any) =
 
         <FormField
           control={form.control}
-          name="hasLoan"
+          name="adaPinjamanLain"
           render={({ field }) => (
             <FormItem className="flex flex-row items-start space-x-3 space-y-0">
               <FormControl>
@@ -122,10 +124,10 @@ export default function COTAExpensesForm({ onSubmit }: { onSubmit: (data: any) =
           )}
         />
 
-        {form.watch("hasLoan") && (
+        {form.watch("adaPinjamanLain") && (
           <FormField
             control={form.control}
-            name="loanAmount"
+            name="jumlahCicilanPinjaman"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Jumlah Cicilan Pinjaman per Bulan</FormLabel>
@@ -137,6 +139,13 @@ export default function COTAExpensesForm({ onSubmit }: { onSubmit: (data: any) =
             )}
           />
         )}
+
+        <div className="flex justify-end">
+          <Button type="submit">
+            Selanjutnya
+            <ChevronRight className="ml-2 h-4 w-4" />
+          </Button>
+        </div>
       </form>
     </Form>
   )
