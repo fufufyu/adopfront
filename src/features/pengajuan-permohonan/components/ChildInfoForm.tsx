@@ -229,13 +229,6 @@ export default function ChildInfoForm({ onSubmit }: { onSubmit: (data: any) => v
             )}
           />
         ))}
-
-        <div className="flex justify-end">
-          <Button type="submit">
-            Selanjutnya
-            <ChevronRight className="ml-2 h-4 w-4" />
-          </Button>
-        </div>
       </form>
     </Form>
   )
