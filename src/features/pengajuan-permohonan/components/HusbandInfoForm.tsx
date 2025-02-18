@@ -1,16 +1,12 @@
-"use client"
-
 import type React from "react"
-
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
-import { Button } from "@/components/ui/button"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ChevronRight, Upload } from "lucide-react"
 import { useState } from "react"
+import { Upload } from "lucide-react"
 
 const MAX_FILE_SIZE = 5000000 // 5MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"]
@@ -29,7 +25,7 @@ const formSchema = z.object({
   phoneNumber: z.string().min(10, "Nomor telepon minimal 10 digit"),
 })
 
-export default function HusbandInfoForm({ onSubmit }: { onSubmit: (data: any) => void }) {
+export default function HusbandInfoForm({ onSubmit }: { onSubmit: (data: any) => void; isPreview: boolean }) {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -39,7 +35,7 @@ export default function HusbandInfoForm({ onSubmit }: { onSubmit: (data: any) =>
       fullName: "",
       placeOfBirth: "",
       dateOfBirth: "",
-      gender: "",
+      gender: "l",
       address: "",
       phoneNumber: "",
     },
@@ -166,8 +162,8 @@ export default function HusbandInfoForm({ onSubmit }: { onSubmit: (data: any) =>
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="L">Laki-laki</SelectItem>
-                  <SelectItem value="P">Perempuan</SelectItem>
+                  <SelectItem value="l">Laki-laki</SelectItem>
+                  <SelectItem value="p">Perempuan</SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />
@@ -202,13 +198,6 @@ export default function HusbandInfoForm({ onSubmit }: { onSubmit: (data: any) =>
             </FormItem>
           )}
         />
-
-        <div className="flex justify-end">
-          <Button type="submit">
-            Selanjutnya
-            <ChevronRight className="ml-2 h-4 w-4" />
-          </Button>
-        </div>
       </form>
     </Form>
   )

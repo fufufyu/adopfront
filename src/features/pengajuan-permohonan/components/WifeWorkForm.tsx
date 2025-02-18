@@ -1,15 +1,21 @@
-"use client"
-
+import type React from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
-import { Button } from "@/components/ui/button"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ChevronRight } from "lucide-react"
+import { Upload } from "lucide-react"
+import { useState } from "react"
+
+const MAX_FILE_SIZE = 5000000 // 5MB
+const ACCEPTED_FILE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/pdf"]
 
 const formSchema = z.object({
+  paycheckSlip: z
+    .any()
+    .refine((file) => file?.size <= MAX_FILE_SIZE, "Ukuran maksimal file adalah 5MB")
+    .refine((file) => ACCEPTED_FILE_TYPES.includes(file?.type), "Format yang diterima: .jpg, .jpeg, .png, dan .pdf"),
   occupation: z.string().min(2, "Pekerjaan wajib diisi"),
   companyName: z.string().min(2, "Nama perusahaan wajib diisi"),
   position: z.string().min(2, "Jabatan wajib diisi"),
@@ -19,7 +25,9 @@ const formSchema = z.object({
   yearsOfService: z.string().min(1, "Lama bekerja wajib diisi"),
 })
 
-export default function WorkInfoForm({ onSubmit }: { onSubmit: (data: any) => void }) {
+export default function WifeWorkForm({ onSubmit }: { onSubmit: (data: any) => void; isPreview: boolean }) {
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -33,9 +41,53 @@ export default function WorkInfoForm({ onSubmit }: { onSubmit: (data: any) => vo
     },
   })
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      if (file.type.startsWith("image/")) {
+        const reader = new FileReader()
+        reader.onloadend = () => {
+          setPreviewUrl(reader.result as string)
+        }
+        reader.readAsDataURL(file)
+      } else {
+        setPreviewUrl(null)
+      }
+      form.setValue("paycheckSlip", file)
+    }
+  }
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <FormField
+          control={form.control}
+          name="paycheckSlip"
+          render={({ field: { onChange, value, ...field } }) => (
+            <FormItem>
+              <FormLabel>Slip Gaji</FormLabel>
+              <FormControl>
+                <div className="space-y-4">
+                  {previewUrl && (
+                    <div className="relative h-48 w-full overflow-hidden rounded-lg">
+                      <img
+                        src={previewUrl || "/placeholder.svg"}
+                        alt="Preview"
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
+                  )}
+                  <div className="flex items-center gap-4">
+                    <Input type="file" accept=".jpg,.jpeg,.png,.pdf" onChange={handleFileChange} {...field} />
+                    {!previewUrl && <Upload className="h-5 w-5 text-muted-foreground" />}
+                  </div>
+                </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         <FormField
           control={form.control}
           name="occupation"
@@ -145,13 +197,6 @@ export default function WorkInfoForm({ onSubmit }: { onSubmit: (data: any) => vo
             </FormItem>
           )}
         />
-
-        <div className="flex justify-end">
-          <Button type="submit">
-            Selanjutnya
-            <ChevronRight className="ml-2 h-4 w-4" />
-          </Button>
-        </div>
       </form>
     </Form>
   )
