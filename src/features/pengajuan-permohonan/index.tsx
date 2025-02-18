@@ -2,34 +2,43 @@ import { useState } from "react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
-import HusbandInfoForm from "./components/husband-info-form"
-import HusbandWorkForm from "./components/husband-work-form"
-import WifeInfoForm from "./components/wife-info-form"
-import WifeWorkForm from "./components/wife-work-form"
-import FamilySpendingForm from "./components/family-spending-form"
-import { ChevronLeft } from "lucide-react"
-import { Header } from "@/components/layout/header"
-import { Search } from "@/components/search"
-import { ThemeSwitch } from "@/components/theme-switch"
-import { ProfileDropdown } from "@/components/profile-dropdown"
-import { Main } from "@/components/layout/main"
+import HusbandInfoForm from "./components/HusbandInfoForm"
+import HusbandWorkForm from "./components/HusbandWorkForm"
+import WifeInfoForm from "./components/WifeInfoForm"
+import WifeWorkForm from "./components/WifeWorkForm"
+import ChildInfoForm from "./components/ChildInfoForm"
+import COTAInfoForm from "./components/COTAInfoForm"
+import COTAExpensesForm from "./components/COTAExpensesForm"
+import COTADeclarationForm from "./components/COTADeclarationForm"
+import { ChevronLeft, ChevronRight } from "lucide-react"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import HusbandHealthForm from "./components/HusbandHealthForm"
+import WifeHealthForm from "./components/WifeHealthForm"
 
 const steps = [
-  { id: 1, name: "Informasi Suami" },
-  { id: 2, name: "Pekerjaan Suami" },
-  { id: 3, name: "Informasi Istri" },
-  { id: 4, name: "Pekerjaan Istri" },
-  { id: 5, name: "Pengeluaran Keluarga" },
+  { id: 1, name: "Informasi COTA" },
+  { id: 2, name: "Informasi Suami" },
+  { id: 3, name: "Pekerjaan Suami" },
+  { id: 4, name: "Kesehatan Suami" },
+  { id: 5, name: "Informasi Istri" },
+  { id: 6, name: "Pekerjaan Istri" },
+  { id: 7, name: "Kesehatan Istri" },
+  { id: 8, name: "Pengeluaran COTA" },
+  { id: 9, name: "Informasi Anak" },
+  { id: 10, name: "Pernyataan COTA" },
 ]
 
 export default function PengajuanPermohonan() {
   const [currentStep, setCurrentStep] = useState(1)
   const [formData, setFormData] = useState({})
+  const [isPreview, setIsPreview] = useState(false)
 
   const progress = (currentStep / steps.length) * 100
 
   const handleNext = (data: any) => {
-    setFormData((prev) => ({ ...prev, ...data }))
+    if (!isPreview) {
+      setFormData((prev) => ({ ...prev, ...data }))
+    }
     setCurrentStep((prev) => Math.min(prev + 1, steps.length))
   }
 
@@ -38,61 +47,97 @@ export default function PengajuanPermohonan() {
   }
 
   const handleSubmit = (data: any) => {
-    const finalData = { ...formData, ...data }
-    console.log("Final form data:", finalData)
-    // Handle form submission here
+    if (!isPreview) {
+      const finalData = { ...formData, ...data }
+      console.log("Final form data:", finalData)
+      // Handle form submission here
+    }
+  }
+
+  const renderForm = () => {
+    switch (currentStep) {
+      case 1:
+        return <COTAInfoForm onSubmit={handleNext} isPreview={isPreview} />
+      case 2:
+        return <HusbandInfoForm onSubmit={handleNext} isPreview={isPreview} />
+      case 3:
+        return <HusbandWorkForm onSubmit={handleNext} isPreview={isPreview} />
+      case 4:
+        return <HusbandHealthForm onSubmit={handleNext} isPreview={isPreview} />
+      case 5:
+        return <WifeInfoForm onSubmit={handleNext} isPreview={isPreview} />
+      case 6:
+        return <WifeWorkForm onSubmit={handleNext} isPreview={isPreview} />
+      case 7:
+        return <WifeHealthForm onSubmit={handleNext} isPreview={isPreview} />
+      case 8:
+        return <COTAExpensesForm onSubmit={handleNext} isPreview={isPreview} />
+      case 9:
+        return <ChildInfoForm onSubmit={handleSubmit} isPreview={isPreview} />
+      case 10:
+        return <COTADeclarationForm onSubmit={handleSubmit} isPreview={isPreview} />
+      default:
+        return null
+    }
   }
 
   return (
-    <>
-      <Header fixed>
-        <Search />
-        <div className='ml-auto flex items-center space-x-4'>
-          <ThemeSwitch />
-          <ProfileDropdown />
-        </div>
-      </Header>
+    <div className="container mx-auto py-6">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold">Pengajuan Permohonan</h1>
+        <p className="text-muted-foreground">Silakan lengkapi formulir berikut untuk mengajukan permohonan</p>
+      </div>
 
-      <Main>
-        <div className="container mx-auto py-6">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold">Pengajuan Permohonan</h1>
-            <p className="text-muted-foreground">Silakan lengkapi formulir berikut untuk mengajukan permohonan</p>
+      <Card className="p-6">
+        <div className="mb-8">
+          <div className="mb-2 flex flex-wrap justify-between text-sm">
+            {steps.map((step) => (
+              <TooltipProvider key={step.id}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={() => {
+                        setCurrentStep(step.id)
+                        setIsPreview(true)
+                      }}
+                      className={`px-2 py-1 rounded ${step.id === currentStep ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-secondary"}`}
+                    >
+                      {step.id}
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{step.name}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            ))}
           </div>
-
-          <Card className="p-6">
-            <div className="mb-8">
-              <div className="mb-2 flex justify-between text-sm">
-                {steps.map((step) => (
-                  <span
-                    key={step.id}
-                    className={`${step.id === currentStep ? "font-medium text-primary" : "text-muted-foreground"}`}
-                  >
-                    {step.name}
-                  </span>
-                ))}
-              </div>
-              <Progress value={progress} className="h-2" />
-            </div>
-
-            <div className="mt-6">
-              {currentStep === 1 && <HusbandInfoForm onSubmit={handleNext} />}
-              {currentStep === 2 && <HusbandWorkForm onSubmit={handleNext} />}
-              {currentStep === 3 && <WifeInfoForm onSubmit={handleNext} />}
-              {currentStep === 4 && <WifeWorkForm onSubmit={handleNext} />}
-              {currentStep === 5 && <FamilySpendingForm onSubmit={handleSubmit} />}
-
-              <div className="mt-6 flex justify-between">
-                <Button variant="outline" onClick={handleBack} disabled={currentStep === 1}>
-                  <ChevronLeft className="mr-2 h-4 w-4" />
-                  Sebelumnya
-                </Button>
-              </div>
-            </div>
-          </Card>
+          <Progress value={progress} className="h-2" />
+          <h2 className="text-2xl font-semibold mt-4 mb-6">{steps[currentStep - 1].name}</h2>
         </div>
-      </Main>
-    </>
+
+        <div className="mt-6">
+          {renderForm()}
+
+          <div className="mt-6 flex justify-between">
+            <Button variant="outline" onClick={handleBack} disabled={currentStep === 1}>
+              <ChevronLeft className="mr-2 h-4 w-4" />
+              Sebelumnya
+            </Button>
+            {currentStep < steps.length ? (
+              <Button onClick={() => handleNext({})} disabled={!isPreview}>
+                Selanjutnya
+                <ChevronRight className="ml-2 h-4 w-4" />
+              </Button>
+            ) : (
+              <Button onClick={() => handleSubmit({})} disabled={!isPreview}>
+                Ajukan Permohonan
+              </Button>
+            )}
+          </div>
+        </div>
+      </Card>
+    </div>
   )
 }
 
