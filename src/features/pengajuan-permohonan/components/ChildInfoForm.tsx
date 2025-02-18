@@ -3,8 +3,10 @@ import { useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
+import { Button } from "@/components/ui/button"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { ChevronRight, Upload } from "lucide-react"
 
 const MAX_FILE_SIZE = 5000000 // 5MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"]
@@ -55,6 +57,7 @@ type FilePreview = {
 
 export default function ChildInfoForm({ onSubmit }: { onSubmit: (data: any) => void; isPreview: boolean }) {
   const [filePreviews, setFilePreviews] = useState<FilePreview>({})
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -70,14 +73,17 @@ export default function ChildInfoForm({ onSubmit }: { onSubmit: (data: any) => v
     const file = e.target.files?.[0]
     if (file) {
       form.setValue(fieldName as any, file)
-      if (file.type.startsWith("image/")) {
+      if (fieldName === "foto") {
         const reader = new FileReader()
         reader.onloadend = () => {
-          setFilePreviews((prev) => ({ ...prev, [fieldName]: reader.result as string }))
+          setPreviewUrl(reader.result as string)
         }
         reader.readAsDataURL(file)
       } else {
-        setFilePreviews((prev) => ({ ...prev, [fieldName]: null }))
+        setFilePreviews((prev) => ({
+          ...prev,
+          [fieldName]: file.type.startsWith("image/") ? URL.createObjectURL(file) : null,
+        }))
       }
     }
   }
@@ -85,6 +91,41 @@ export default function ChildInfoForm({ onSubmit }: { onSubmit: (data: any) => v
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <FormField
+          control={form.control}
+          name="foto"
+          render={({ field: { onChange, value, ...field } }) => (
+            <FormItem className="flex flex-col items-center space-y-4">
+              <FormLabel>Foto Anak</FormLabel>
+              <FormControl>
+                <div className="flex flex-col items-center gap-4">
+                  <div className="relative h-32 w-32 overflow-hidden rounded-full">
+                    {previewUrl ? (
+                      <img
+                        src={previewUrl || "/placeholder.svg"}
+                        alt="Preview"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center bg-muted">
+                        <Upload className="h-8 w-8 text-muted-foreground" />
+                      </div>
+                    )}
+                  </div>
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleFileChange(e, "foto")}
+                    className="max-w-[200px]"
+                    {...field}
+                  />
+                </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         <FormField
           control={form.control}
           name="fullName"
@@ -144,7 +185,6 @@ export default function ChildInfoForm({ onSubmit }: { onSubmit: (data: any) => v
         />
 
         {[
-          "foto",
           "aktaKelahiran",
           "kartuKeluarga",
           "ktpAyah",
@@ -189,6 +229,13 @@ export default function ChildInfoForm({ onSubmit }: { onSubmit: (data: any) => v
             )}
           />
         ))}
+
+        <div className="flex justify-end">
+          <Button type="submit">
+            Selanjutnya
+            <ChevronRight className="ml-2 h-4 w-4" />
+          </Button>
+        </div>
       </form>
     </Form>
   )
