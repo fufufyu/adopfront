@@ -3,10 +3,9 @@ import { useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
-import { Button } from "@/components/ui/button"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { ChevronRight, Upload } from "lucide-react"
+import { Upload } from "lucide-react"
 
 const MAX_FILE_SIZE = 5000000 // 5MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"]
@@ -197,7 +196,7 @@ export default function ChildInfoForm({ onSubmit }: { onSubmit: (data: any) => v
             key={fieldName}
             control={form.control}
             name={fieldName as any}
-            render={({ field }) => (
+            render={() => (
               <FormItem>
                 <FormLabel>
                   {fieldName.charAt(0).toUpperCase() +
